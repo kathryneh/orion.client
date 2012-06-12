@@ -273,7 +273,7 @@ define(["orion/assert", "orion/serviceregistry", "orion/pluginregistry", "orion/
 		});
 	};
 
-	tests["test pluginregistry events pluginAdded, pluginRemoved"] = function() {
+	tests["test pluginregistry events pluginLoaded"] = function() {
 		var storage = {};
 		var serviceRegistry = new mServiceregistry.ServiceRegistry();
 		var pluginRegistry = new mPluginregistry.PluginRegistry(serviceRegistry, storage);
@@ -282,7 +282,7 @@ define(["orion/assert", "orion/serviceregistry", "orion/pluginregistry", "orion/
 		assert.equal(serviceRegistry.getServiceReferences().length, 0);		
 		
 		var promise = new Deferred();
-		pluginRegistry.addEventListener("pluginAdded", function(plugin) {
+		pluginRegistry.addEventListener("pluginLoaded", function(plugin) {
 			try {
 				assert.ok(!!plugin, "plugin not null");
 				assert.equal(plugin.getData().services.length, 1);

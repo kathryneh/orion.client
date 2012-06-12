@@ -269,8 +269,8 @@ eclipse.Plugin = function(url, data, internalRegistry) {
 	
 	if (data) {
 		_parseData();
-		_setState(INSTALLED);
 	}
+	_setState(INSTALLED);
 };
 /**
  * The plugin is uninstalled.
@@ -435,7 +435,6 @@ eclipse.PluginRegistry = function(serviceRegistry, opt_storage, opt_visible) {
 				for (var i = 0; i < _plugins.length; i++) {
 					if (plugin === _plugins[i]) {
 						_plugins.splice(i,1);
-						_pluginEventTarget.dispatchEvent("pluginRemoved", plugin); //$NON-NLS-0$
 						break;
 					}
 				}
@@ -518,7 +517,7 @@ eclipse.PluginRegistry = function(serviceRegistry, opt_storage, opt_visible) {
 	 * Installs the plugin at the given location into the plugin registry
 	 * @name orion.pluginregistry.PluginRegistry#installPlugin
 	 * @param {String} url The location of the plugin
-	 * @param {Object} opt_data The plugin metadata
+	 * @param {Object} [opt_data] The plugin metadata
 	 * @function 
 	 */
 	this.installPlugin = function(url, opt_data) {
@@ -529,25 +528,16 @@ eclipse.PluginRegistry = function(serviceRegistry, opt_storage, opt_visible) {
 			if(plugin.getData()) {
 				d.resolve(plugin);
 			} else {
-				var pluginTracker = function(plugin) {
-					if (plugin.getLocation() === url) {
-						d.resolve(plugin);
-						_pluginEventTarget.removeEventListener("pluginAdded", pluginTracker); //$NON-NLS-0$
-					}
-				};
-				_pluginEventTarget.addEventListener("pluginAdded", pluginTracker); //$NON-NLS-0$
 			}
 		} else {
 			plugin = new eclipse.Plugin(url, opt_data, internalRegistry);
 			_plugins.push(plugin);
 			if(plugin.getData()) {
 				_persist(plugin);
-				_pluginEventTarget.dispatchEvent("pluginAdded", plugin); //$NON-NLS-0$
 				d.resolve(plugin);
 			} else {				
 				plugin._load(true).then(function() {
 					_persist(plugin);
-					_pluginEventTarget.dispatchEvent("pluginAdded", plugin); //$NON-NLS-0$
 					d.resolve(plugin);
 				}, function(e) {
 					d.reject(e);
@@ -588,7 +578,6 @@ eclipse.PluginRegistry = function(serviceRegistry, opt_storage, opt_visible) {
 		return null;
 	};
 	
-	// pluginAdded, pluginRemoved
 	this.addEventListener = function(eventName, listener) {
 		_pluginEventTarget.addEventListener(eventName, listener);
 	};
